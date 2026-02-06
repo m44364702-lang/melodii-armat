@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ملودیی آرمات — NeonPlayer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+  :root{--bg-image:url('');--bg:#04060b;--neon:#00ffd5;--neon-2:#ff6bd6;--muted:#9aa6b2;font-family:Inter,system-ui,Arial;color-scheme:dark}
+  *{box-sizing:border-box}html,body{height:100%}body{margin:0;background:var(--bg);color:#e6f7ff;-webkit-font-smoothing:antialiased;position:relative;background-image:var(--bg-image);background-size:cover;background-position:center}
+  body::before{content:"";position:fixed;inset:0;background:linear-gradient(180deg,rgba(4,6,11,0.45),rgba(4,6,11,0.6));pointer-events:none;z-index:0}
+  .container{max-width:1000px;margin:0 auto;padding:1rem;position:relative;z-index:1}
+  .header-inner{display:flex;align-items:center;justify-content:space-between;padding:1rem 0}
+  .logo{font-weight:800;font-size:1.25rem;background:linear-gradient(90deg,var(--neon),var(--neon-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .actions .btn{background:transparent;color:var(--neon);border-radius:8px;padding:8px 12px;border:1px solid rgba(255,255,255,0.04);cursor:pointer}
+  .hero{display:flex;gap:1rem;align-items:center;padding:2rem 0}
+  .cover{width:140px;height:140px;border-radius:12px;overflow:hidden;flex:0 0 140px;box-shadow:0 12px 40px rgba(0,0,0,0.7)}
+  .cover img{width:100%;height:100%;object-fit:cover}
+  .now h1{margin:0;font-size:1.25rem}
+  .playlist{margin-top:1rem}
+  #playlist{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+  #playlist li{display:flex;align-items:center;gap:12px;padding:10px;border-radius:10px;background:rgba(255,255,255,0.02);cursor:pointer}
+  .player{position:fixed;left:8px;right:8px;bottom:8px;padding:12px;border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));box-shadow:0 18px 60px rgba(2,6,23,0.8);display:flex;gap:12px;align-items:center;z-index:2}
+  .buttons{display:flex;gap:8px;align-items:center}
+  .play{background:var(--neon);color:#001;border:none;border-radius:999px;padding:10px}
+  .search-input{width:220px;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
+  .quick-add{display:flex;gap:8px;margin:10px 0}
+  .quick-add input{flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
+  @media (max-width:700px){ .search-input{width:120px} .cover{width:120px;height:120px} }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <div class="logo">ملودیی <span style="opacity:.8">آرمات</span></div>
+        <div class="tag" style="color:#9aa6b2;font-size:.85rem">پخش موسیقی — جستجو و دانلود</div>
+      </div>
+      <nav class="actions">
+        <input id="search" class="search-input" type="search" placeholder="جستجو آهنگ یا هنرمند..." />
+        <button class="btn" id="supportBtn" style="margin-left:8px">حمایت</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container main">
+    <section class="hero">
+      <div class="cover" id="cover"><img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=800&auto=format&fit=crop" alt="cover"></div>
+      <div class="now">
+        <h1 id="track-title">نمونه آهنگ — SoundHelix</h1>
+        <p id="track-artist" style="color:#9aa6b2">هنرمند نمونه</p>
+      </div>
+    </section>
+
+    <section class="playlist">
+      <h2>لیست پخش</h2>
+      <div class="quick-add">
+        <input id="urlInput" type="url" placeholder="آدرس مستقیم فایل صوتی (mp3)">
+        <button id="playUrlBtn" class="btn">پخش</button>
+      </div>
+      <ul id="playlist"></ul>
+      <div id="noResults" style="display:none;color:#9aa6b2;margin-top:8px">
+        نتیجه‌ای یافت نشد. <button id="searchYoutubeBtn" class="btn" style="margin-right:8px">جستجو در YouTube</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="player" id="player">
+    <div style="display:flex;align-items:center;gap:10px">
+      <img id="mini-cover" src="" alt="" style="width:48px;height:48px;border-radius:8px;object-fit:cover">
+      <div>
+        <div id="mini-title" style="font-weight:600">عنوان</div>
+        <div id="mini-artist" style="font-size:12px;color:#9aa6b2">هنرمند</div>
+      </div>
+    </div>
+
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px">
+      <div class="buttons">
+        <button id="shuffleBtn">🔀</button>
+        <button id="prevBtn">⏮️</button>
+        <button id="playBtn" class="play">▶️</button>
+        <button id="nextBtn">⏭️</button>
+        <a id="downloadBtn" title="دانلود" href="#" download style="text-decoration:none;color:inherit">⬇️</a>
+      </div>
+      <div style="width:100%;display:flex;align-items:center;gap:8px">
+        <div id="currentTime" style="width:40px;text-align:center;color:#9aa6b2">0:00</div>
+        <input id="progress" type="range" min="0" max="100" value="0" style="flex:1">
+        <div id="duration" style="width:40px;text-align:center;color:#9aa6b2">0:00</div>
+      </div>
+    </div>
+
+    <div style="width:90px;display:flex;align-items:center;justify-content:center">
+      <input id="volume" type="range" min="0" max="1" step="0.01" value="0.9" style="width:80px">
+    </div>
+
+    <audio id="audio" crossorigin="anonymous"></audio>
+  </footer>
+
+  <script>
+  // JS: پخش، جستجو، اضافه توسط URL و دانلود با fallback
+  const audio = document.getElementById('audio');
+  const playBtn = document.getElementById('playBtn');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const progress = document.getElementById('progress');
+  const currentTimeEl = document.getElementById('currentTime');
+  const durationEl = document.getElementById('duration');
+  const playlistEl = document.getElementById('playlist');
+  const miniTitle = document.getElementById('mini-title');
+  const miniArtist = document.getElementById('mini-artist');
+  const miniCover = document.getElementById('mini-cover');
+  const trackTitle = document.getElementById('track-title');
+  const trackArtist = document.getElementById('track-artist');
+  const coverEl = document.getElementById('cover').querySelector('img');
+  const searchInput = document.getElementById('search');
+  const noResults = document.getElementById('noResults');
+  const searchYoutubeBtn = document.getElementById('searchYoutubeBtn');
+  const urlInput = document.getElementById('urlInput');
+  const playUrlBtn = document.getElementById('playUrlBtn');
+  const downloadBtn = document.getElementById('downloadBtn');
+
+  let isPlaying=false, current=0, isShuffle=false, isRepeat=false;
+  const playlist = [
+    { title: "SoundHelix Song 1", artist: "SoundHelix", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", cover: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=800&auto=format&fit=crop" },
+    { title: "SoundHelix Song 2", artist: "SoundHelix", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", cover: "https://images.unsplash.com/photo-1507878866276-a947ef722fee?q=80&w=800&auto=format&fit=crop" },
+    { title: "SoundHelix Song 3", artist: "SoundHelix", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", cover: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=800&auto=format&fit=crop" }
+  ];
+
+  function renderPlaylist(items){
+    playlistEl.innerHTML='';
+    items.forEach((t,i)=>{ const li=document.createElement('li'); li.dataset.idx=i; li.innerHTML=`<div style="width:56px;height:56px;border-radius:8px;overflow:hidden"><img src="${t.cover}" style="width:100%;height:100%;object-fit:cover"></div><div style="flex:1;margin-right:8px"><div style="font-weight:700">${t.title}</div><div style="font-size:12px;color:#9aa6b2">${t.artist}</div></div>`; li.addEventListener('click',()=>{ const idx=playlist.indexOf(t); if(idx>=0){loadTrack(idx); playAudio()} }); playlistEl.appendChild(li) });
+  }
+  renderPlaylist(playlist);
+
+  function loadTrack(i){ current=i; const t=playlist[i]; audio.src=t.src; updateDownloadLink(t.src,t.title); miniTitle.textContent=t.title; miniArtist.textContent=t.artist; miniCover.src=t.cover; trackTitle.textContent=t.title; trackArtist.textContent=t.artist; coverEl.src=t.cover; document.querySelectorAll('#playlist li').forEach(li=>li.classList.toggle('active',Number(li.dataset.idx)===i)); }
+  function loadTrackByUrl(url,title='فایل خارجی'){ audio.src=url; updateDownloadLink(url,title); miniTitle.textContent=title; miniArtist.textContent=''; trackTitle.textContent=title; trackArtist.textContent=''; document.querySelectorAll('#playlist li').forEach(li=>li.classList.remove('active')); }
+
+  function playAudio(){ audio.play(); } function pauseAudio(){ audio.pause(); }
+  playBtn.addEventListener('click',()=>{ if(!isPlaying) playAudio(); else pauseAudio(); });
+  prevBtn.addEventListener('click',()=>{ if(audio.currentTime>5) audio.currentTime=0; else { current=(current-1+playlist.length)%playlist.length; loadTrack(current); playAudio(); }});
+  nextBtn.addEventListener('click',()=>{ if(isShuffle) current=Math.floor(Math.random()*playlist.length); else current=(current+1)%playlist.length; loadTrack(current); playAudio(); });
+
+  audio.addEventListener('play',()=>{ isPlaying=true; playBtn.textContent='⏸️'; });
+  audio.addEventListener('pause',()=>{ isPlaying=false; playBtn.textContent='▶️'; });
+  audio.addEventListener('timeupdate',()=>{ const cur=audio.currentTime; const dur=audio.duration||0; currentTimeEl.textContent=formatTime(cur); durationEl.textContent=isFinite(dur)?formatTime(dur):'0:00'; progress.value=dur?(cur/dur)*100:0; });
+  audio.addEventListener('ended',()=>{ nextBtn.click(); });
+
+  progress.addEventListener('input',e=>{ const pct=e.target.value; if(audio.duration) audio.currentTime=(pct/100)*audio.duration; });
+  document.getElementById('volume').addEventListener('input',e=>{ audio
